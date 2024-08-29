@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>계산기 서블릿</title>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+<script>
+
+$(document).ready(function() {
+  $("#calcForm").submit(function(event) {
+    event.preventDefault(); // Prevent default form submission
+
+    var n1 = $("#n1").val();
+    var n2 = $("#n2").val();
+    var op = $("#op").val(); // 연산자
+
+    // Input Validation (Optional but recommended)
+    // 입력유효성 검사
+    var isValid = true;
+    if (isNaN(n1) || isNaN(n2)) {
+      $("#result").html("Please enter valid numbers only.");
+      isValid = false;
+    }
+
+    if (op === "/" && n2 === "0") {
+      $("#result").html("Division by zero is not allowed.");
+      isValid = false;
+    }
+
+    if (!isValid) {
+      return; // Prevent AJAX request if input is invalid
+    }
+
+    $.ajax({
+      url: "/First/서블릿",
+      method: "POST",
+      data: {n1: n1, n2: n2, op: op},
+      beforeSend: function() {
+        $("#result").html("Calculating..."); // Display loading indicator
+      },
+      success: function(data) {
+        $("#result").html(data); // Update result div with response
+      },
+      error: function(jqXHR, textStatus, errorThrown) {
+        console.error("Error:", textStatus, errorThrown);
+        $("#result").html("An error occurred during calculation. Please try again.");
+      }
+    });
+  });
+});
+</script>
+</head>
+<body>
+  <h2>계산기 서블릿</h2>
+  <hr>
+  <form id="calcForm" method="post" action="/서블릿">
+    <input type="text" name="n1" id="n1" size="10" placeholder="Enter first number">
+    <select name="op" id="op">
+      <option>+</option>
+      <option>-</option>
+      <option>*</option>
+      <option>/</option>
+    </select>
+    <input type="text" name="n2" id="n2" size="10" placeholder="Enter second number">
+    <input type="submit" value="실행">
+  </form>
+  <div id="result"></div>
+</body>
+</html>
